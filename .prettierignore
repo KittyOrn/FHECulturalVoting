@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+artifacts/
+cache/
+coverage/
+dist/
+typechain/
+typechain-types/
+
+# Deployment
+deployments/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Git
+.git/
+
+# IDE
+.vscode/
+.idea/
