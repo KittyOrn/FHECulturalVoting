@@ -1,0 +1,9 @@
+# Directories
+**/artifacts
+**/node_modules
+**/cache
+**/coverage
+
+# Build outputs
+**/typechain
+**/typechain-types
