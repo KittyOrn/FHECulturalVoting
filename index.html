@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cultural Voting Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.0/dist/ethers.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+
+        .section h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .wallet-section {
+            text-align: center;
+        }
+
+        .wallet-info {
+            background: #1a1a2e;
+            border: 2px solid #00d4ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #00d4ff;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00d4ff, #0077ff);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+        }
+
+        .project-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .project-card h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .project-meta {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .vote-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .score-input {
+            width: 60px !important;
+            display: inline-block !important;
+            margin-right: 10px;
+        }
+
+        .status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .status.active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status.inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status.completed {
+            background: #bee3f8;
+            color: #2a4365;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Cultural Voting Platform</h1>
+            <p>Privacy-Protected Cultural Project Voting System</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Wallet Connection -->
+            <div class="section wallet-section">
+                <h2>🔗 Wallet Connection</h2>
+                <div id="walletInfo" class="wallet-info" style="display: none;">
+                    <strong>Connected:</strong> <span id="walletAddress"></span>
+                </div>
+                <button id="connectWallet" class="btn">Connect Wallet</button>
+                <div id="walletError" class="error-message" style="display: none;"></div>
+            </div>
+
+            <!-- Project Proposal -->
+            <div class="section">
+                <h2>📝 Submit Cultural Project</h2>
+                <div class="input-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" placeholder="Enter project name">
+                </div>
+                <div class="input-group">
+                    <label for="projectDescription">Project Description</label>
+                    <textarea id="projectDescription" rows="3" placeholder="Describe your cultural project in detail"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="projectCategory">Project Category</label>
+                    <select id="projectCategory">
+                        <option value="">Select Category</option>
+                        <option value="Traditional Culture">Traditional Culture</option>
+                        <option value="Modern Art">Modern Art</option>
+                        <option value="Music Performance">Music Performance</option>
+                        <option value="Literature">Literature</option>
+                        <option value="Digital Art">Digital Art</option>
+                        <option value="Community Culture">Community Culture</option>
+                    </select>
+                </div>
+                <button id="submitProject" class="btn">Submit Project</button>
+                <div id="projectMessage" style="display: none;"></div>
+            </div>
+
+            <!-- Admin Functions -->
+            <div class="section" id="adminSection" style="display: none;">
+                <h2>⚙️ Admin Functions</h2>
+                <div class="input-group">
+                    <label for="voterAddress">Authorize Voter Address</label>
+                    <input type="text" id="voterAddress" placeholder="0x...">
+                </div>
+                <button id="authorizeVoter" class="btn">Authorize Voter</button>
+
+                <div style="margin-top: 20px;">
+                    <h3>Start Voting Round</h3>
+                    <div id="projectsList"></div>
+                    <button id="startVoting" class="btn">Start Voting</button>
+                </div>
+
+                <button id="endVoting" class="btn" style="background: #e53e3e;">End Voting</button>
+                <div id="adminMessage" style="display: none;"></div>
+            </div>
+
+            <!-- Current Voting -->
+            <div class="section">
+                <h2>🗳️ Current Voting</h2>
+                <div id="votingStatus" class="status inactive">Voting Not Started</div>
+                <div id="votingProjects"></div>
+                <div id="votingMessage" style="display: none;"></div>
+            </div>
+
+            <!-- Voting Results -->
+            <div class="section">
+                <h2>📊 Voting Results</h2>
+                <div id="votingResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Contract Configuration
+        const CONTRACT_ADDRESS = "0xd88E2D38Bceb34781f403b233E0f1a5a5E3A1022";
+        const CONTRACT_ABI = [
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "uint8",
+                        "name": "projectId",
+                        "type": "uint8"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "address",
+                        "name": "proposer",
+                        "type": "address"
+                    }
+                ],
+                "name": "ProjectProposed",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "uint8",
+                        "name": "round",
+                        "type": "uint8"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint8",
+                        "name": "winningProjectId",
+                        "type": "uint8"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint8",
+                        "name": "maxScore",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "ResultsRevealed",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "voter",
+                        "type": "address"
+                    }
+                ],
+                "name": "VoterAuthorized",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "voter",
+                        "type": "address"
+                    }
+                ],
+                "name": "VoterRevoked",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "voter",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint8",
+                        "name": "round",
+                        "type": "uint8"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint8",
+                        "name": "projectId",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "VoteSubmitted",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "uint8",
+                        "name": "round",
+                        "type": "uint8"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint8[]",
+                        "name": "projectIds",
+                        "type": "uint8[]"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "startTime",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "VotingRoundStarted",
+                "type": "event"
+            },
+            {
+                "inputs": [],
+                "name": "admin",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_voter",
+                        "type": "address"
+                    }
+                ],
+                "name": "authorizeVoter",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "authorizedVoters",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "currentVotingRound",
+                "outputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "endVotingRound",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getCurrentRoundInfo",
+                "outputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "round",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "votingActive",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "resultsRevealed",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "startTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "endTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8[]",
+                        "name": "projectIds",
+                        "type": "uint8[]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getCurrentRoundProjectIds",
+                "outputs": [
+                    {
+                        "internalType": "uint8[]",
+                        "name": "",
+                        "type": "uint8[]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "_projectId",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "getProjectInfo",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "description",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "category",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "proposer",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isActive",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "proposalTime",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "_projectId",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "getProjectVoteCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "_round",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "getRoundResults",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "resultsRevealed",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "winningProjectId",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "maxScore",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "voterCount",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "_projectId",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_voter",
+                        "type": "address"
+                    }
+                ],
+                "name": "getVoteStatus",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "hasVoted",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "_projectId",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_voter",
+                        "type": "address"
+                    }
+                ],
+                "name": "hasUserVotedForProject",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_voter",
+                        "type": "address"
+                    }
+                ],
+                "name": "isAuthorizedVoter",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "requestId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8[]",
+                        "name": "decryptedScores",
+                        "type": "uint8[]"
+                    },
+                    {
+                        "internalType": "bytes[]",
+                        "name": "signatures",
+                        "type": "bytes[]"
+                    }
+                ],
+                "name": "processResults",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "projects",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "description",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "category",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "proposer",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isActive",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "proposalTime",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_description",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_category",
+                        "type": "string"
+                    }
+                ],
+                "name": "proposeProject",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_voter",
+                        "type": "address"
+                    }
+                ],
+                "name": "revokeVoter",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8[]",
+                        "name": "_projectIds",
+                        "type": "uint8[]"
+                    }
+                ],
+                "name": "startVotingRound",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "_projectId",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "_score",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "submitVote",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "totalProjects",
+                "outputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "votes",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "hasVoted",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "votingRounds",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "votingActive",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "resultsRevealed",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "startTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "endTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "winningProjectId",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "maxScore",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        // Global variables
+        let provider, signer, contract, userAddress;
+
+        // Connect wallet
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum !== 'undefined') {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    signer = await provider.getSigner();
+                    userAddress = await signer.getAddress();
+
+                    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+                    document.getElementById('walletAddress').textContent =
+                        userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                    document.getElementById('walletInfo').style.display = 'block';
+                    document.getElementById('connectWallet').textContent = 'Connected';
+                    document.getElementById('connectWallet').disabled = true;
+
+                    await checkAdminStatus();
+                    await loadData();
+                } else {
+                    showError('walletError', 'Please install MetaMask wallet');
+                }
+            } catch (error) {
+                showError('walletError', 'Failed to connect wallet: ' + error.message);
+            }
+        }
+
+        // Check admin status
+        async function checkAdminStatus() {
+            try {
+                const admin = await contract.admin();
+                if (admin.toLowerCase() === userAddress.toLowerCase()) {
+                    document.getElementById('adminSection').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Failed to check admin status:', error);
+            }
+        }
+
+        // Submit project
+        async function submitProject() {
+            const name = document.getElementById('projectName').value;
+            const description = document.getElementById('projectDescription').value;
+            const category = document.getElementById('projectCategory').value;
+
+            if (!name || !description || !category) {
+                showError('projectMessage', 'Please fill all fields');
+                return;
+            }
+
+            try {
+                showLoading('submitProject');
+                const tx = await contract.proposeProject(name, description, category);
+                await tx.wait();
+
+                showSuccess('projectMessage', 'Project submitted successfully!');
+                document.getElementById('projectName').value = '';
+                document.getElementById('projectDescription').value = '';
+                document.getElementById('projectCategory').value = '';
+
+                await loadData();
+            } catch (error) {
+                showError('projectMessage', 'Submission failed: ' + error.message);
+            } finally {
+                hideLoading('submitProject');
+            }
+        }
+
+        // Authorize voter
+        async function authorizeVoter() {
+            const voterAddress = document.getElementById('voterAddress').value;
+
+            if (!voterAddress || !ethers.isAddress(voterAddress)) {
+                showError('adminMessage', 'Please enter a valid address');
+                return;
+            }
+
+            try {
+                showLoading('authorizeVoter');
+                const tx = await contract.authorizeVoter(voterAddress);
+                await tx.wait();
+
+                showSuccess('adminMessage', 'Voter authorized successfully!');
+                document.getElementById('voterAddress').value = '';
+            } catch (error) {
+                showError('adminMessage', 'Authorization failed: ' + error.message);
+            } finally {
+                hideLoading('authorizeVoter');
+            }
+        }
+
+        // Start voting
+        async function startVoting() {
+            const selectedProjects = Array.from(document.querySelectorAll('input[name="selectedProjects"]:checked'))
+                .map(cb => parseInt(cb.value));
+
+            if (selectedProjects.length === 0) {
+                showError('adminMessage', 'Please select at least one project');
+                return;
+            }
+
+            try {
+                showLoading('startVoting');
+                const tx = await contract.startVotingRound(selectedProjects);
+                await tx.wait();
+
+                showSuccess('adminMessage', 'Voting round started!');
+                await loadData();
+            } catch (error) {
+                showError('adminMessage', 'Failed to start voting: ' + error.message);
+            } finally {
+                hideLoading('startVoting');
+            }
+        }
+
+        // End voting
+        async function endVoting() {
+            try {
+                showLoading('endVoting');
+                const tx = await contract.endVotingRound();
+                await tx.wait();
+
+                showSuccess('adminMessage', 'Voting ended!');
+                await loadData();
+            } catch (error) {
+                showError('adminMessage', 'Failed to end voting: ' + error.message);
+            } finally {
+                hideLoading('endVoting');
+            }
+        }
+
+        // Submit vote
+        async function submitVote(projectId, button) {
+            const scoreInput = button.parentElement.querySelector('.score-input');
+            const score = parseInt(scoreInput.value);
+
+            if (!score || score < 1 || score > 10) {
+                showError('votingMessage', 'Please enter a score between 1-10');
+                return;
+            }
+
+            try {
+                showLoading(button.id);
+                const tx = await contract.submitVote(projectId, score);
+                await tx.wait();
+
+                showSuccess('votingMessage', 'Vote submitted successfully!');
+                await loadData();
+            } catch (error) {
+                showError('votingMessage', 'Vote failed: ' + error.message);
+            } finally {
+                hideLoading(button.id);
+            }
+        }
+
+        // Load data
+        async function loadData() {
+            if (!contract) return;
+
+            try {
+                await loadVotingStatus();
+                await loadProjects();
+                await loadVotingResults();
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+        }
+
+        // Load voting status
+        async function loadVotingStatus() {
+            try {
+                const roundInfo = await contract.getCurrentRoundInfo();
+                const statusDiv = document.getElementById('votingStatus');
+                const projectsDiv = document.getElementById('votingProjects');
+
+                if (roundInfo.votingActive) {
+                    statusDiv.textContent = 'Voting in Progress';
+                    statusDiv.className = 'status active';
+
+                    // Load voting projects
+                    let projectsHtml = '<h3>Projects Available for Voting</h3>';
+                    for (let i = 0; i < roundInfo.projectIds.length; i++) {
+                        const projectId = roundInfo.projectIds[i];
+                        const project = await contract.getProjectInfo(projectId);
+                        const voteStatus = await contract.getVoteStatus(projectId, userAddress);
+
+                        projectsHtml += `
+                            <div class="project-card">
+                                <h3>${project.name}</h3>
+                                <p>${project.description}</p>
+                                <div class="project-meta">
+                                    Category: ${project.category} |
+                                    Proposer: ${project.proposer.slice(0, 6)}...${project.proposer.slice(-4)}
+                                </div>
+                                <div class="vote-section">
+                                    ${!voteStatus.hasVoted ? `
+                                        <input type="number" class="score-input" min="1" max="10" placeholder="1-10">
+                                        <button class="btn" id="vote_${projectId}" onclick="submitVote(${projectId}, this)">Vote</button>
+                                    ` : `
+                                        <span class="status completed">Voted</span>
+                                    `}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    projectsDiv.innerHTML = projectsHtml;
+                } else {
+                    statusDiv.textContent = roundInfo.resultsRevealed ? 'Voting Ended' : 'Voting Not Started';
+                    statusDiv.className = roundInfo.resultsRevealed ? 'status completed' : 'status inactive';
+                    projectsDiv.innerHTML = '<p>No active voting currently</p>';
+                }
+            } catch (error) {
+                console.error('Failed to load voting status:', error);
+            }
+        }
+
+        // Load projects list (for admin)
+        async function loadProjects() {
+            if (document.getElementById('adminSection').style.display === 'none') return;
+
+            try {
+                const totalProjects = await contract.totalProjects();
+                let projectsHtml = '';
+
+                for (let i = 1; i <= totalProjects; i++) {
+                    const project = await contract.getProjectInfo(i);
+                    if (project.isActive) {
+                        projectsHtml += `
+                            <label style="display: block; margin: 5px 0;">
+                                <input type="checkbox" name="selectedProjects" value="${i}">
+                                ${project.name} (${project.category})
+                            </label>
+                        `;
+                    }
+                }
+
+                document.getElementById('projectsList').innerHTML = projectsHtml;
+            } catch (error) {
+                console.error('Failed to load projects list:', error);
+            }
+        }
+
+        // Load voting results
+        async function loadVotingResults() {
+            try {
+                const currentRound = await contract.currentVotingRound();
+                let resultsHtml = '';
+
+                for (let round = 1; round < currentRound; round++) {
+                    const results = await contract.getRoundResults(round);
+                    if (results.resultsRevealed) {
+                        const project = await contract.getProjectInfo(results.winningProjectId);
+                        resultsHtml += `
+                            <div class="project-card">
+                                <h3>Round ${round} Results</h3>
+                                <p><strong>Winning Project:</strong> ${project.name}</p>
+                                <p><strong>Highest Score:</strong> ${results.maxScore}</p>
+                                <p><strong>Total Voters:</strong> ${results.voterCount}</p>
+                            </div>
+                        `;
+                    }
+                }
+
+                const resultsDiv = document.getElementById('votingResults');
+                resultsDiv.innerHTML = resultsHtml || '<p>No voting results yet</p>';
+            } catch (error) {
+                console.error('Failed to load voting results:', error);
+            }
+        }
+
+        // Helper functions
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'error-message';
+            element.style.display = 'block';
+        }
+
+        function showSuccess(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'success-message';
+            element.style.display = 'block';
+        }
+
+        function showLoading(buttonId) {
+            const button = document.getElementById(buttonId);
+            const originalText = button.textContent;
+            button.innerHTML = '<div class="loading"></div>Processing...';
+            button.disabled = true;
+            button.dataset.originalText = originalText;
+        }
+
+        function hideLoading(buttonId) {
+            const button = document.getElementById(buttonId);
+            button.innerHTML = button.dataset.originalText || button.textContent;
+            button.disabled = false;
+        }
+
+        // Event listeners
+        document.getElementById('connectWallet').addEventListener('click', connectWallet);
+        document.getElementById('submitProject').addEventListener('click', submitProject);
+        document.getElementById('authorizeVoter').addEventListener('click', authorizeVoter);
+        document.getElementById('startVoting').addEventListener('click', startVoting);
+        document.getElementById('endVoting').addEventListener('click', endVoting);
+
+        // Check wallet connection on page load
+        window.addEventListener('load', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length > 0) {
+                    connectWallet();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
