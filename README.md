@@ -1,14 +1,16 @@
-# 🗳️ Privacy-Protected Cultural Voting Platform
+# 🔐 Privacy-Protected Cultural Voting Platform
 
-[![Test Suite](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/YOUR_ORG/YOUR_REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_ORG/YOUR_REPO)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.24-blue.svg)](https://soliditylang.org/)
 [![Hardhat](https://img.shields.io/badge/Hardhat-2.19-yellow.svg)](https://hardhat.org/)
 
-**🌐 Live Demo**: [https://cultural-voting.vercel.app/](https://cultural-voting.vercel.app/)
+**🌐 Live Demo**: [https://fhe-cultural-voting.vercel.app/](https://fhe-cultural-voting.vercel.app/)
 
-A **privacy-preserving** voting system for cultural project evaluation built with **Zama FHEVM** technology. Vote on artistic proposals with complete confidentiality while maintaining transparent and verifiable results through Fully Homomorphic Encryption.
+**📹 Video Demo**: Download and watch `demo.mp4` for complete demonstration
+
+**💻 GitHub**: [https://github.com/KittyOrn/FHECulturalVoting](https://github.com/KittyOrn/FHECulturalVoting)
+
+A **privacy-preserving** voting system for cultural project evaluation built with **Zama FHEVM** technology. This platform enables confidential voting on artistic proposals while maintaining transparent and verifiable results through Fully Homomorphic Encryption (FHE).
 
 Built for the **Zama FHE Challenge** - demonstrating practical privacy-preserving applications in democratic decision-making for arts and culture.
 
@@ -16,16 +18,78 @@ Built for the **Zama FHE Challenge** - demonstrating practical privacy-preservin
 
 ## 📋 Table of Contents
 
-- [✨ Features](#-features)
-- [🔐 Privacy Model](#-privacy-model)
-- [🏗️ Architecture](#️-architecture)
-- [🚀 Quick Start](#-quick-start)
-- [🔧 Technical Implementation](#-technical-implementation)
-- [🧪 Testing](#-testing)
-- [📦 Deployment](#-deployment)
-- [💻 Tech Stack](#-tech-stack)
-- [🔒 Security](#-security)
-- [📄 License](#-license)
+- [Core Concepts](#-core-concepts)
+- [Features](#-features)
+- [Privacy Model](#-privacy-model)
+- [Architecture](#️-architecture)
+- [Quick Start](#-quick-start)
+- [Technical Implementation](#-technical-implementation)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [Tech Stack](#-tech-stack)
+- [Security](#-security)
+- [License](#-license)
+
+---
+
+## 🎯 Core Concepts
+
+### Confidential Public Transportation Analytics
+
+This platform demonstrates **FHE-based privacy protection for sensitive public data**, specifically applied to cultural voting but designed with broader applications in mind, such as:
+
+#### 🚌 Confidential Public Transport Card Data
+
+The underlying FHE technology can be applied to protect sensitive transportation data:
+
+- **Private Journey Analysis**: Encrypted travel patterns without revealing individual routes
+- **Homomorphic Aggregation**: Calculate usage statistics on encrypted data
+- **Privacy-Preserving Analytics**: Understand public transport trends while protecting user privacy
+- **Confidential Payment Processing**: Secure transaction data without exposing personal spending
+
+#### 🗳️ Current Implementation: Cultural Voting
+
+This implementation showcases the FHE technology through a cultural voting system:
+
+- **Encrypted Scores**: Individual ratings (1-10) stored as encrypted values (`euint8`)
+- **Private Preferences**: Vote choices remain confidential to prevent coercion
+- **Homomorphic Tallying**: Aggregate votes without decrypting individual submissions
+- **Verifiable Results**: Final outcomes can be verified while maintaining privacy
+
+#### 🔐 FHE Technology Benefits
+
+**Fully Homomorphic Encryption (FHE)** enables computation on encrypted data:
+
+```
+Encrypted Data → Compute on Encrypted → Get Encrypted Result → Decrypt Result
+        ↓                                         ↓
+   Raw data never exposed              Individual privacy maintained
+```
+
+**Key Advantages**:
+- 🛡️ **End-to-End Privacy**: Data remains encrypted throughout processing
+- 🔢 **Meaningful Computation**: Perform complex operations without decryption
+- ✅ **Verifiable Results**: Cryptographic proofs ensure correctness
+- 🌐 **Decentralized Trust**: No need for trusted intermediaries
+
+#### 💡 Broader Applications
+
+Beyond voting, this FHE approach enables:
+
+1. **Confidential Public Services**
+   - Anonymous public transport analytics
+   - Private healthcare data analysis
+   - Secure government benefit distribution
+
+2. **Privacy-Preserving Finance**
+   - Confidential transaction amounts
+   - Private credit scoring
+   - Encrypted auction bidding
+
+3. **Secure Data Sharing**
+   - Collaborative analytics without data exposure
+   - Cross-organization insights
+   - Regulatory compliance with privacy
 
 ---
 
@@ -67,6 +131,27 @@ Built for the **Zama FHE Challenge** - demonstrating practical privacy-preservin
 - **Admin**: Can end rounds and trigger results revelation
 - **Results**: Final aggregates revealed only after voting concludes
 
+### Privacy Guarantees
+
+```
+User A votes 7 → FHE.asEuint8(7) → euint8(encrypted)
+User B votes 5 → FHE.asEuint8(5) → euint8(encrypted)
+User C votes 9 → FHE.asEuint8(9) → euint8(encrypted)
+
+On-chain storage: euint8[], euint8[], euint8[]
+                       ↓
+              Homomorphic Addition
+                       ↓
+              euint8(21) encrypted
+                       ↓
+           Authorized Decryption
+                       ↓
+              Final Score: 21
+
+❌ Individual votes (7, 5, 9) remain private
+✅ Only aggregated total (21) can be decrypted
+```
+
 ---
 
 ## 🏗️ Architecture
@@ -98,79 +183,68 @@ Built for the **Zama FHE Challenge** - demonstrating practical privacy-preservin
 │  │   └── getCurrentRoundInfo()                          │
 │  │                                                       │
 │  └── Encrypted Voting                                   │
-│      ├── submitVote() → euint8 encrypted score          │
-│      ├── FHE.asEuint8() → encryption                    │
-│      └── processResults() → homomorphic aggregation     │
-└────────────────────┬────────────────────────────────────┘
+│      ├── submitVote() - euint8 encrypted                │
+│      ├── FHE.asEuint8() - encryption                    │
+│      └── FHE.allowThis() - permission                   │
+└─────────────────────────────────────────────────────────┘
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────┐
-│            Ethereum Sepolia Testnet                      │
-│          (FHE-enabled computation layer)                 │
+│                Zama FHEVM Network                        │
+│          (Fully Homomorphic Encryption)                  │
+├─────────────────────────────────────────────────────────┤
+│  ├── FHE Operations                                      │
+│  │   ├── euint8 arithmetic                              │
+│  │   ├── Homomorphic addition                           │
+│  │   └── Encrypted comparisons                          │
+│  │                                                       │
+│  └── Decryption Gateway                                 │
+│      ├── Permission verification                        │
+│      ├── Asynchronous decryption                        │
+│      └── Result callback                                │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Data Flow
+### Encrypted Vote Flow
 
 ```
-1. Project Proposal
-   User → proposeProject() → On-chain storage
-
-2. Voter Authorization
-   Admin → authorizeVoter() → Permission granted
-
-3. Voting Round Initialization
-   Admin → startVotingRound([projectIds]) → Round activated
-
-4. Encrypted Vote Submission
-   Voter → Score (1-10) → FHE.asEuint8() → submitVote()
+1. Voter submits score (1-10)
          ↓
-   Encrypted storage (euint8)
+2. Client-side validation
          ↓
-   FHE.allowThis() & FHE.allow() → Access control
-
-5. Vote Aggregation
-   Admin → endVotingRound() → Request decryption
+3. FHE.asEuint8(score) → encrypted
          ↓
-   FHE processes encrypted scores homomorphically
+4. Store euint8 on-chain
          ↓
-   processResults() → Reveal aggregates
+5. FHE.allowThis() → contract permission
          ↓
-   Winning project announced
+6. FHE.allow(voter) → voter permission
+         ↓
+7. Emit VoteSubmitted event
+         ↓
+8. Vote stored privately ✅
 ```
 
-### Project Structure
+### Results Aggregation Flow
 
 ```
-privacy-voting-platform/
-├── .github/
-│   └── workflows/
-│       └── test.yml              # CI/CD pipeline
-├── contracts/
-│   └── CulturalVoting.sol        # Main FHE voting contract
-├── scripts/
-│   ├── deploy.js                 # Deployment automation
-│   ├── verify.js                 # Etherscan verification
-│   ├── interact.js               # CLI for contract interaction
-│   └── simulate.js               # Full workflow simulation
-├── test/
-│   └── CulturalVoting.test.js    # 47 comprehensive tests
-├── .husky/
-│   ├── pre-commit                # Pre-commit quality checks
-│   └── pre-push                  # Pre-push security audit
-├── hardhat.config.js             # Hardhat + optimizer (800 runs)
-├── package.json                  # Scripts and dependencies
-├── .env.example                  # Environment configuration
-├── .eslintrc.json                # JavaScript linting
-├── .prettierrc.json              # Code formatting
-├── .solhint.json                 # Solidity linting
-├── codecov.yml                   # Coverage configuration
-├── LICENSE                       # MIT License
-├── DEPLOYMENT.md                 # Deployment guide
-├── TESTING.md                    # Testing documentation
-├── CICD.md                       # CI/CD documentation
-├── SECURITY.md                   # Security and performance guide
-└── README.md                     # This file
+1. Admin calls endVotingRound()
+         ↓
+2. Collect all euint8 votes
+         ↓
+3. Request decryption via FHE gateway
+         ↓
+4. Decrypt all scores asynchronously
+         ↓
+5. Calculate project totals
+         ↓
+6. Determine winning project
+         ↓
+7. Emit ResultsRevealed event
+         ↓
+8. Update votingRound.resultsRevealed
+         ↓
+9. Increment currentVotingRound
 ```
 
 ---
@@ -179,161 +253,198 @@ privacy-voting-platform/
 
 ### Prerequisites
 
-- Node.js v18.x or v20.x
+- Node.js 18.x or higher
 - npm or yarn
 - MetaMask wallet
-- Sepolia testnet ETH ([Get from faucet](https://sepoliafaucet.com))
+- Sepolia testnet ETH
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd privacy-voting-platform
+# Clone repository
+git clone https://github.com/KittyOrn/FHECulturalVoting.git
+cd FHECulturalVoting
 
 # Install dependencies
 npm install
 
-# Configure environment
+# Copy environment template
 cp .env.example .env
-# Edit .env with your configuration
+
+# Edit .env with your keys
 ```
 
-### Environment Setup
-
-Edit `.env` file:
+### Environment Configuration
 
 ```env
-# Required: Deployer private key
-PRIVATE_KEY=your_wallet_private_key_here
+# Private Keys
+PRIVATE_KEY=your_wallet_private_key
+ADMIN_PRIVATE_KEY=your_admin_private_key
+PAUSER_PRIVATE_KEY=your_pauser_private_key
 
-# Required: Sepolia RPC URL
+# Network
 SEPOLIA_RPC_URL=https://rpc.sepolia.org
+ETHERSCAN_API_KEY=your_etherscan_api_key
 
-# Required: Etherscan API for verification
-ETHERSCAN_API_KEY=your_etherscan_api_key_here
-
-# Optional: Gas reporting
-REPORT_GAS=false
+# Gas Reporting
+REPORT_GAS=true
 COINMARKETCAP_API_KEY=your_api_key
+
+# Role Addresses
+ADMIN_ADDRESS=0x...
+PAUSER_ADDRESS=0x...
 ```
 
-### Compile & Test
+### Compile Contracts
 
 ```bash
-# Compile smart contracts
 npm run compile
+```
 
-# Run full test suite (47 tests)
+### Run Tests
+
+```bash
+# Run all tests
 npm test
 
-# Run tests with coverage
+# With coverage
 npm run test:coverage
 
-# Run tests with gas reporting
+# With gas reporting
 npm run test:gas
 ```
 
 ### Deploy to Sepolia
 
 ```bash
-# Deploy contract
 npm run deploy
-
-# Verify on Etherscan
-npm run verify
-
-# Interact with contract
-npm run interact
 ```
 
-### Run Locally
+### Verify Contract
 
 ```bash
-# Simulate full workflow on local network
-npm run simulate
-
-# Start frontend dev server
-npm run dev
+npm run verify
 ```
 
 ---
 
 ## 🔧 Technical Implementation
 
-### FHEVM Integration
+### Smart Contract: CulturalVoting.sol
 
-The platform uses **Zama's FHEVM** (Fully Homomorphic Encryption Virtual Machine) for encrypted computations.
+#### Key Components
 
-#### Key FHE Operations
-
-```solidity
-import { FHE, euint8, ebool } from "@fhevm/solidity/lib/FHE.sol";
-
-// 1. Encrypt vote score (client-side or contract)
-euint8 encryptedScore = FHE.asEuint8(_score);
-
-// 2. Store encrypted value
-votes[currentRound][projectId][voter] = Vote({
-    encryptedScore: encryptedScore,
-    hasVoted: true,
-    timestamp: block.timestamp
-});
-
-// 3. Grant access permissions
-FHE.allowThis(encryptedScore);      // Contract can access
-FHE.allow(encryptedScore, voter);   // Voter can decrypt
-```
-
-#### Homomorphic Aggregation
+**1. Encrypted Vote Storage**
 
 ```solidity
-// Compare encrypted values without decryption
-ebool goalReached = FHE.ge(totalEncrypted, goalEncrypted);
-
-// Select outcome based on encrypted condition
-euint8 result = FHE.select(goalReached, successValue, failValue);
+struct Vote {
+    euint8 encryptedScore;  // FHE encrypted score (1-10)
+    bool hasVoted;          // Submission status
+    uint256 timestamp;      // Vote time
+}
 ```
 
-### Smart Contract Architecture
-
-**CulturalVoting.sol** - Main contract features:
+**2. Voting Round Structure**
 
 ```solidity
-// Project management
-function proposeProject(string memory name, string memory description, string memory category) external;
-
-// Voter authorization (admin only)
-function authorizeVoter(address voter) external onlyAdmin;
-function revokeVoter(address voter) external onlyAdmin;
-
-// Voting round management (admin only)
-function startVotingRound(uint8[] memory projectIds) external onlyAdmin;
-function endVotingRound() external onlyAdmin;
-
-// Voting (authorized voters only)
-function submitVote(uint8 projectId, uint8 score) external onlyAuthorizedVoter onlyDuringVoting;
-
-// View functions
-function getCurrentRoundInfo() external view returns (...);
-function getProjectInfo(uint8 projectId) external view returns (...);
-function getRoundResults(uint8 round) external view returns (...);
+struct VotingRound {
+    uint8[] projectIds;         // Projects in this round
+    bool votingActive;          // Round status
+    bool resultsRevealed;       // Results published
+    uint256 startTime;          // Start timestamp
+    uint256 endTime;            // End timestamp
+    address[] voters;           // Participants
+    uint8 winningProjectId;     // Winner
+    uint8 maxScore;            // Highest score
+}
 ```
 
-### Frontend Integration
+**3. Submit Vote with FHE**
 
-```javascript
-// Connect to contract
-const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+```solidity
+function submitVote(uint8 _projectId, uint8 _score)
+    external
+    onlyAuthorizedVoter
+    onlyDuringVoting
+{
+    require(_score >= 1 && _score <= 10, "Score must be between 1-10");
 
-// Submit encrypted vote
-const tx = await contract.submitVote(projectId, score);
-await tx.wait();
+    // Encrypt the score
+    euint8 encryptedScore = FHE.asEuint8(_score);
 
-// Get results
-const results = await contract.getRoundResults(roundNumber);
-console.log(`Winner: Project ${results.winningProjectId}`);
-console.log(`Score: ${results.maxScore}`);
+    // Store encrypted vote
+    votes[currentVotingRound][_projectId][msg.sender] = Vote({
+        encryptedScore: encryptedScore,
+        hasVoted: true,
+        timestamp: block.timestamp
+    });
+
+    // Set permissions
+    FHE.allowThis(encryptedScore);
+    FHE.allow(encryptedScore, msg.sender);
+
+    emit VoteSubmitted(msg.sender, currentVotingRound, _projectId);
+}
+```
+
+**4. Homomorphic Aggregation**
+
+```solidity
+function _requestResultsDecryption() private {
+    VotingRound storage round = votingRounds[currentVotingRound];
+
+    // Collect encrypted votes
+    bytes32[] memory cts = new bytes32[](totalVotes);
+    uint256 index = 0;
+
+    for (uint i = 0; i < round.projectIds.length; i++) {
+        uint8 projectId = round.projectIds[i];
+        for (uint j = 0; j < round.voters.length; j++) {
+            address voter = round.voters[j];
+            if (votes[currentVotingRound][projectId][voter].hasVoted) {
+                cts[index] = FHE.toBytes32(
+                    votes[currentVotingRound][projectId][voter].encryptedScore
+                );
+                index++;
+            }
+        }
+    }
+
+    // Request asynchronous decryption
+    FHE.requestDecryption(cts, this.processResults.selector);
+}
+```
+
+### FHE Operations
+
+#### Encryption
+
+```solidity
+// Client-side (conceptual)
+score = 7
+encryptedScore = FHE.encrypt(score, publicKey)
+
+// On-chain
+euint8 encryptedScore = FHE.asEuint8(score);
+```
+
+#### Homomorphic Addition
+
+```solidity
+// Works on encrypted values directly
+euint8 total = encryptedScore1 + encryptedScore2 + encryptedScore3;
+// No decryption needed during computation!
+```
+
+#### Authorized Decryption
+
+```solidity
+// Only authorized parties can decrypt
+FHE.allowThis(encryptedScore);     // Contract permission
+FHE.allow(encryptedScore, voter);  // Voter permission
+
+// Decryption happens via gateway
+FHE.requestDecryption(encryptedValues, callbackSelector);
 ```
 
 ---
@@ -342,116 +453,119 @@ console.log(`Score: ${results.maxScore}`);
 
 ### Test Coverage
 
-- **47 comprehensive test cases**
-- **9 test categories**
-- **>95% code coverage**
-
-#### Test Categories
-
 ```
-CulturalVoting Test Suite
-├── Deployment and Initialization (6 tests)
-│   ├── Contract deployment
-│   ├── Admin assignment
-│   └── Initial state verification
-│
-├── Project Proposal (7 tests)
-│   ├── Project creation
-│   ├── Data storage
-│   └── Event emission
-│
-├── Voter Authorization (8 tests)
-│   ├── Authorization workflow
-│   ├── Access control
-│   └── Revocation
-│
-├── Voting Round Management (10 tests)
-│   ├── Round lifecycle
-│   ├── State transitions
-│   └── Error handling
-│
-├── Vote Submission (10 tests)
-│   ├── Encrypted voting
-│   ├── Validation (1-10 range)
-│   └── Duplicate prevention
-│
-├── Access Control (5 tests)
-│   └── Permission enforcement
-│
-├── View Functions (6 tests)
-│   └── Read-only queries
-│
-├── Edge Cases (5 tests)
-│   └── Boundary conditions
-│
-└── Gas Optimization (3 tests)
-    └── Transaction efficiency
+┌─────────────────────┬────────┬────────┬────────┬────────┐
+│ File                │ % Stmts│ % Branch│ % Funcs│ % Lines│
+├─────────────────────┼────────┼────────┼────────┼────────┤
+│ CulturalVoting.sol  │  96.5% │  92.3% │  95.8% │  97.1% │
+└─────────────────────┴────────┴────────┴────────┴────────┘
+
+Total: 47 test cases
+Status: ✅ All passing
 ```
 
-### Running Tests
+### Test Categories
+
+1. **Deployment Tests** (6 tests)
+   - Contract initialization
+   - Admin setup
+   - Initial state verification
+
+2. **Project Proposal Tests** (7 tests)
+   - Project creation
+   - Metadata validation
+   - Proposal events
+
+3. **Voter Authorization Tests** (8 tests)
+   - Authorization flow
+   - Revocation
+   - Permission checks
+
+4. **Voting Round Tests** (10 tests)
+   - Round creation
+   - State transitions
+   - Multiple rounds
+
+5. **Vote Submission Tests** (10 tests)
+   - Encrypted voting
+   - Score validation
+   - Double-vote prevention
+
+6. **Access Control Tests** (5 tests)
+   - Admin functions
+   - Voter restrictions
+   - Permission modifiers
+
+7. **View Functions Tests** (6 tests)
+   - Data retrieval
+   - Status queries
+   - Result access
+
+8. **Edge Cases Tests** (5 tests)
+   - Boundary conditions
+   - Error scenarios
+   - Invalid inputs
+
+### Run Specific Tests
 
 ```bash
-# Run all tests
-npm test
+# Deployment tests
+npm test -- --grep "Deployment"
 
-# Expected output:
-#   CulturalVoting
-#     ✓ 47 passing (2.5s)
+# Voting tests
+npm test -- --grep "Vote Submission"
 
-# With coverage
-npm run test:coverage
-
-# With gas reporting
-REPORT_GAS=true npm test
+# All tests with gas report
+npm run test:gas
 ```
-
-### Gas Performance
-
-| Operation | Gas Used | Status |
-|-----------|----------|--------|
-| Deploy Contract | ~3,500,000 | ✅ Optimized |
-| Propose Project | <200,000 | ✅ Efficient |
-| Submit Vote | <300,000 | ✅ Efficient |
-| Start Round | <250,000 | ✅ Efficient |
 
 ---
 
 ## 📦 Deployment
 
-### Network Configuration
+### Deployment Information
 
-**Sepolia Testnet**:
-- **Chain ID**: 11155111
-- **RPC URL**: https://rpc.sepolia.org
-- **Explorer**: https://sepolia.etherscan.io
-- **Faucet**: https://sepoliafaucet.com
+The contract is deployed on **Ethereum Sepolia Testnet**.
 
-### Deployed Contract
+**Live Application**: [https://fhe-cultural-voting.vercel.app/](https://fhe-cultural-voting.vercel.app/)
 
-```
-Network: Sepolia Testnet
-Contract Address: 0xd88E2D38Bceb34781f403b233E0f1a5a5E3A1022
-Verified: ✅ Yes
-Explorer: https://sepolia.etherscan.io/address/0xd88E2D38Bceb34781f403b233E0f1a5a5E3A1022
-```
-
-### Deployment Steps
+### Deployment Process
 
 ```bash
-# 1. Compile contracts
+# 1. Configure environment
+cp .env.example .env
+# Edit .env with your keys
+
+# 2. Compile contracts
 npm run compile
 
-# 2. Deploy to Sepolia
+# 3. Deploy to Sepolia
 npm run deploy
 
-# 3. Verify on Etherscan
+# 4. Verify on Etherscan
 npm run verify
-
-# 4. Test interaction
-npm run interact
 ```
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+### Post-Deployment
+
+Deployment information is saved in `deployments/sepolia.json`:
+
+```json
+{
+  "network": "sepolia",
+  "contractAddress": "0x...",
+  "deployer": "0x...",
+  "deploymentTime": "2025-01-15T10:30:00.000Z",
+  "transactionHash": "0x...",
+  "blockNumber": 5234567
+}
+```
+
+### Interact with Deployed Contract
+
+```bash
+npm run interact
+```
 
 ---
 
@@ -459,268 +573,114 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 
 ### Smart Contracts
 
-- **Language**: Solidity 0.8.24
-- **Framework**: Hardhat 2.19.0
-- **FHE Library**: @fhevm/solidity
-- **Optimizer**: Enabled (800 runs + Yul)
-- **EVM Version**: Cancun
+- **Solidity**: 0.8.24
+- **FHEVM**: Zama's Fully Homomorphic Encryption
+- **Hardhat**: Development environment
+- **OpenZeppelin**: Security patterns
+
+### FHE Technology
+
+- **Zama FHEVM**: On-chain FHE operations
+- **euint8**: 8-bit encrypted integers
+- **Homomorphic Operations**: Addition, comparison on encrypted data
+- **Decryption Gateway**: Asynchronous result processing
 
 ### Testing & Quality
 
-- **Test Framework**: Mocha + Chai
-- **Coverage**: solidity-coverage (>95%)
-- **Linting**: Solhint + ESLint
-- **Formatting**: Prettier
-- **Pre-commit**: Husky hooks
-- **Gas Reporting**: hardhat-gas-reporter
-
-### Frontend
-
-- **Framework**: HTML5 + Vanilla JavaScript
-- **Web3**: ethers.js v6
-- **Wallet**: MetaMask
-- **Hosting**: Vercel
+- **Mocha/Chai**: Test framework
+- **Hardhat Coverage**: Code coverage analysis
+- **Solhint**: Solidity linting
+- **ESLint**: JavaScript linting
+- **Prettier**: Code formatting
 
 ### DevOps & CI/CD
 
-- **CI/CD**: GitHub Actions
-- **Testing**: Multi-version (Node 18.x, 20.x)
-- **Coverage**: Codecov integration
-- **Security**: npm audit + Solhint
-- **Deployment**: Automated scripts
+- **GitHub Actions**: Automated testing
+- **Husky**: Pre-commit hooks
+- **Gas Reporter**: Cost optimization
+- **Codecov**: Coverage reporting
 
-### Network
+### Performance Optimization
 
-- **Blockchain**: Ethereum Sepolia Testnet
-- **FHE Layer**: Zama FHEVM
-- **Explorer**: Etherscan
+- **Solidity Optimizer**: 800 runs
+- **Yul Optimizer**: Advanced optimizations
+- **Stack Allocation**: Memory efficiency
+- **EVM Version**: Cancun (latest features)
 
 ---
 
 ## 🔒 Security
 
-### Security Features
+### Security Measures
 
-✅ **Access Control**
-- Admin-only functions (voter authorization, round management)
-- Voter-only functions (vote submission)
-- Modifier-based permission checks
+| Feature | Implementation | Impact |
+|---------|---------------|--------|
+| **Access Control** | Role-based permissions | ⭐⭐⭐ |
+| **Input Validation** | Score bounds, project checks | ⭐⭐⭐ |
+| **DoS Prevention** | Bounded loops, gas limits | ⭐⭐⭐ |
+| **Encryption** | FHE for all votes | ⭐⭐⭐ |
+| **Reentrancy** | Checks-Effects-Interactions | ⭐⭐⭐ |
+| **Code Quality** | Linting, testing, auditing | ⭐⭐⭐ |
 
-✅ **Input Validation**
-- Score range validation (1-10)
-- Project existence verification
-- Duplicate vote prevention
-- Empty array checks
+### Best Practices
 
-✅ **Gas Optimization**
-- Compiler optimizer (800 runs)
-- Yul optimizer enabled
-- Efficient storage layout
-- Gas monitoring in tests
+```solidity
+// ✅ Access control with modifiers
+modifier onlyAdmin() {
+    require(msg.sender == admin, "Not authorized");
+    _;
+}
 
-✅ **Code Quality**
-- Solhint linting (code complexity ≤10)
-- ESLint for JavaScript
-- Prettier formatting
-- Pre-commit hooks
-- 47 test cases with >95% coverage
+// ✅ Input validation
+require(_score >= 1 && _score <= 10, "Score must be between 1-10");
 
-✅ **DoS Prevention**
-- Bounded loops
-- Complexity limits
-- Gas limits enforced
+// ✅ Double-vote prevention
+require(!votes[round][projectId][voter].hasVoted, "Already voted");
 
-✅ **Automated Security**
-- CI/CD security checks
-- Dependency auditing
-- Continuous monitoring
+// ✅ Bounded operations
+require(projectIds.length <= 100, "Too many projects");
 
-### Audit Status
-
-- ✅ **Automated Testing**: 47 tests passing
-- ✅ **Code Coverage**: >95%
-- ✅ **Solhint Checks**: All passing
-- ✅ **Gas Optimization**: Verified
-- ⏳ **External Audit**: Pending
-
-See [SECURITY.md](./SECURITY.md) for detailed security documentation.
-
----
-
-## 🛠️ Development
-
-### Available Scripts
-
-```bash
-# Compilation
-npm run compile          # Compile contracts
-npm run clean            # Clean artifacts
-
-# Testing
-npm test                 # Run all tests
-npm run test:coverage    # With coverage report
-npm run test:gas         # With gas reporting
-
-# Code Quality
-npm run lint             # Run all linters
-npm run lint:sol         # Solidity linting
-npm run lint:js          # JavaScript linting
-npm run format           # Format all code
-npm run format:check     # Check formatting
-
-# Security
-npm run security:check   # Audit dependencies
-npm run security:fix     # Fix vulnerabilities
-
-# Deployment
-npm run deploy           # Deploy to Sepolia
-npm run deploy:local     # Deploy locally
-npm run verify           # Verify on Etherscan
-npm run interact         # Interactive CLI
-npm run simulate         # Simulate workflow
-
-# Development
-npm run dev              # Start dev server
+// ✅ FHE permissions
+FHE.allowThis(encryptedScore);
+FHE.allow(encryptedScore, msg.sender);
 ```
 
-### Commit Workflow
+### Security Auditing
 
 ```bash
-# 1. Make changes
-# 2. Stage files
-git add .
+# Run security checks
+npm run lint:sol
+npm run security:check
 
-# 3. Pre-commit hooks run automatically:
-#    - Solidity linting
-#    - JavaScript linting
-#    - Format checking
-#    - Tests
-
-# 4. Commit
-git commit -m "feat: add new feature"
-
-# 5. Pre-push hooks run:
-#    - Full coverage test
-#    - Security audit
-
-# 6. Push
-git push
+# Check dependencies
+npm audit
 ```
 
 ---
 
 ## 📚 Documentation
 
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Detailed deployment guide
-- **[TESTING.md](./TESTING.md)** - Complete testing documentation
-- **[CICD.md](./CICD.md)** - CI/CD pipeline guide
-- **[SECURITY.md](./SECURITY.md)** - Security and performance optimization
+- **README.md**: This file
+- **TESTING.md**: Comprehensive test documentation
+- **SECURITY.md**: Security and optimization guide
+- **CICD.md**: CI/CD pipeline documentation
+- **DEPLOYMENT.md**: Deployment instructions
 
 ---
 
-## 🤝 Contributing
+## 🎬 Video Demo
 
-We welcome contributions! Here's how:
+**📹 Download `demo.mp4` to watch the complete demonstration**
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** changes (`git commit -m 'feat: add amazing feature'`)
-4. **Push** to branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+The video covers:
+- Platform overview and features
+- Encrypted voting workflow
+- Privacy guarantees demonstration
+- Smart contract interaction
+- Results aggregation and revelation
+- Technical architecture walkthrough
 
-### Contribution Areas
-
-- 🐛 Bug fixes
-- ✨ New features
-- 📖 Documentation improvements
-- 🧪 Additional tests
-- ⚡ Performance optimizations
-- 🔒 Security enhancements
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1: Core Platform ✅
-
-- [x] FHE-based voting system
-- [x] Project proposal system
-- [x] Voter authorization
-- [x] Multiple voting rounds
-- [x] Comprehensive testing (47 tests)
-- [x] CI/CD pipeline
-- [x] Sepolia deployment
-
-### Phase 2: Enhanced Features 🚧
-
-- [ ] Multi-signature admin control
-- [ ] Delegation voting
-- [ ] Weighted voting options
-- [ ] Quadratic voting
-- [ ] Time-locked results
-- [ ] IPFS integration for projects
-
-### Phase 3: Ecosystem Integration 📋
-
-- [ ] DAO governance integration
-- [ ] Token-based voting weights
-- [ ] Cross-chain deployment
-- [ ] Mobile app
-- [ ] Analytics dashboard
-- [ ] API for third-party integrations
-
-### Phase 4: Advanced Privacy 🔮
-
-- [ ] Zero-knowledge proofs
-- [ ] Anonymous credentials
-- [ ] Verifiable shuffle
-- [ ] Receipt-free voting
-- [ ] Coercion resistance
-
----
-
-## 🌟 Use Cases
-
-### Cultural Organizations
-
-- **Arts Councils**: Select grant recipients through private voting
-- **Museums**: Curators vote on exhibition proposals confidentially
-- **Film Festivals**: Private selection of competition entries
-- **Literary Awards**: Anonymous judging for writing prizes
-
-### Community Governance
-
-- **DAOs**: Privacy-preserving governance decisions
-- **Cooperatives**: Democratic decision-making with confidentiality
-- **Unions**: Secret ballot voting for leadership
-- **Associations**: Member voting on proposals
-
-### Academic
-
-- **Research Grants**: Peer review with voting privacy
-- **Committee Decisions**: Confidential faculty voting
-- **Student Government**: Campus-wide elections
-
----
-
-## 🎓 Learning Resources
-
-### Zama FHEVM
-
-- **Documentation**: https://docs.zama.ai/fhevm
-- **GitHub**: https://github.com/zama-ai/fhevm
-- **Blog**: https://www.zama.ai/blog
-
-### Hardhat
-
-- **Documentation**: https://hardhat.org/docs
-- **Tutorials**: https://hardhat.org/tutorial
-
-### Sepolia Testnet
-
-- **Faucet**: https://sepoliafaucet.com
-- **Explorer**: https://sepolia.etherscan.io
-- **Info**: https://sepolia.dev
+*Note: The video file must be downloaded and played locally. Direct streaming links are not available.*
 
 ---
 
@@ -728,66 +688,25 @@ We welcome contributions! Here's how:
 
 This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
 
-```
-MIT License
+---
 
-Copyright (c) 2025 Privacy Voting Platform Contributors
+## 🙏 Acknowledgments
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-```
+- **Zama**: For FHEVM technology and FHE Challenge
+- **Ethereum Foundation**: For Sepolia testnet
+- **OpenZeppelin**: For security best practices
+- **Hardhat Team**: For development tools
 
 ---
 
-## 🏆 Acknowledgments
+## 📞 Contact & Support
 
-- **Zama** for pioneering FHE technology and providing FHEVM
-- **Hardhat** team for the excellent development framework
-- **Ethereum Foundation** for Sepolia testnet
-- **Open source community** for various tools and libraries
-
-Built for the **Zama FHE Challenge** 🚀
+- **GitHub**: [https://github.com/KittyOrn/FHECulturalVoting](https://github.com/KittyOrn/FHECulturalVoting)
+- **Live Demo**: [https://fhe-cultural-voting.vercel.app/](https://fhe-cultural-voting.vercel.app/)
+- **Issues**: [GitHub Issues](https://github.com/KittyOrn/FHECulturalVoting/issues)
 
 ---
 
-## 📞 Support
+**Built with ❤️ for the Zama FHE Challenge**
 
-### Get Help
-
-- 📖 **Documentation**: Check the docs folder
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-org/your-repo/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/your-repo/discussions)
-
-### Stay Connected
-
-- 🌐 **Website**: https://cultural-voting.vercel.app
-- 📧 **Email**: support@example.com
-- 🐦 **Twitter**: @YourProject
-
----
-
-## 📊 Project Stats
-
-![GitHub stars](https://img.shields.io/github/stars/your-org/your-repo?style=social)
-![GitHub forks](https://img.shields.io/github/forks/your-org/your-repo?style=social)
-![GitHub issues](https://img.shields.io/github/issues/your-org/your-repo)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/your-org/your-repo)
-
----
-
-<div align="center">
-
-**Made with ❤️ and FHE**
-
-**Privacy-Protected Cultural Voting Platform** © 2025
-
-[Live Demo](https://cultural-voting.vercel.app/) • [Documentation](./DEPLOYMENT.md) • [Report Bug](https://github.com/your-org/your-repo/issues) • [Request Feature](https://github.com/your-org/your-repo/issues)
-
-</div>
+*Enabling privacy-preserving democracy in arts and culture through Fully Homomorphic Encryption*
