@@ -14,6 +14,11 @@ A **privacy-preserving** voting system for cultural project evaluation built wit
 
 Built for the **Zama FHE Challenge** - demonstrating practical privacy-preserving applications in democratic decision-making for arts and culture.
 
+**🎯 Project Components:**
+- **Smart Contracts** (`contracts/`) - Solidity contracts with FHE voting logic
+- **Privacy Voting Frontend** (`privacy-voting/`) - Next.js 14 + React + @fhevm/sdk web application
+- **FHEVM SDK** (`fhevm-react-template/`) - Universal SDK for FHE operations
+
 ---
 
 ## 📋 Table of Contents
@@ -161,6 +166,7 @@ On-chain storage: euint8[], euint8[], euint8[]
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    User Interface                        │
+│      privacy-voting/ - Next.js 14 + React + @fhevm/sdk │
 │              (Web3 + MetaMask + ethers.js)              │
 └────────────────────┬────────────────────────────────────┘
                      │
@@ -324,6 +330,43 @@ npm run deploy
 
 ```bash
 npm run verify
+```
+
+### Run Privacy Voting Frontend
+
+The `privacy-voting/` directory contains a modern Next.js 14 frontend application:
+
+```bash
+# Navigate to frontend directory
+cd privacy-voting
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
+
+Open [http://localhost:3002](http://localhost:3002) in your browser.
+
+**Frontend Features:**
+- 🔐 SDK-powered encryption/decryption
+- 💻 Next.js 14 App Router
+- 🎨 Tailwind CSS responsive design
+- ⚡ TypeScript for type safety
+- 🔌 Ethers.js for blockchain interaction
+
+**Frontend Structure:**
+```
+privacy-voting/
+├── app/
+│   ├── layout.tsx          # Root layout
+│   ├── page.tsx            # Main voting page
+│   ├── providers.tsx       # @fhevm/sdk provider
+│   └── globals.css         # Global styles
+├── contracts/
+│   └── CulturalVoting.sol  # Smart contract
+└── package.json            # Dependencies
 ```
 
 ---
@@ -578,25 +621,37 @@ npm run interact
 - **Hardhat**: Development environment
 - **OpenZeppelin**: Security patterns
 
+### Frontend (privacy-voting/)
+
+- **Next.js**: 14.2.0 (App Router)
+- **React**: 18.3.0
+- **TypeScript**: 5.3.0
+- **Tailwind CSS**: Responsive design
+- **Ethers.js**: 6.15.0 - Ethereum interaction
+- **@fhevm/sdk**: Custom FHE SDK for encryption/decryption
+
 ### FHE Technology
 
 - **Zama FHEVM**: On-chain FHE operations
 - **euint8**: 8-bit encrypted integers
 - **Homomorphic Operations**: Addition, comparison on encrypted data
 - **Decryption Gateway**: Asynchronous result processing
+- **@fhevm/sdk**: Universal SDK for FHE operations
 
 ### Testing & Quality
 
 - **Mocha/Chai**: Test framework
 - **Hardhat Coverage**: Code coverage analysis
 - **Solhint**: Solidity linting
-- **ESLint**: JavaScript linting
+- **ESLint**: JavaScript linting (frontend & contracts)
 - **Prettier**: Code formatting
 
 ### DevOps & CI/CD
 
 - **GitHub Actions**: Automated testing
 - **Husky**: Pre-commit hooks
+- **Vercel**: Frontend deployment
+- **Hardhat**: Smart contract deployment
 - **Gas Reporter**: Cost optimization
 - **Codecov**: Coverage reporting
 
